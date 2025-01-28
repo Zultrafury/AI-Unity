@@ -9,16 +9,20 @@ public class AutonomousAgent : AIAgent {
         Flock
     }
     public MovementType movementType;
+    protected Vector3 recordedPos = Vector3.zero;
 
     private void Update() {
         Vector3 moveVector = Vector3.zero;
+        transform.rotation = Quaternion.LookRotation(GetVelocity().normalized);
+        recordedPos = transform.position;
+
         int its = 0;
         //TARGET PERCEPTION
         foreach (var go in perception.GetTargets()) {
             if (movementType == MovementType.Chase) {
                 Vector3 targetVector = go.transform.position - transform.position;
                 if (moveVector == Vector3.zero || targetVector.magnitude < moveVector.magnitude) {
-                    moveVector = targetVector;
+                    moveVector = targetVector.normalized;
                 }
                 its = 1;
             }
@@ -34,23 +38,26 @@ public class AutonomousAgent : AIAgent {
                     movementType = MovementType.Flock;
                 }
                 else {
-                    moveVector += transform.position - go.transform.position;
+                    moveVector += movement.movementData.maxSpeed * (targetVector.normalized / MathF.Max(targetVector.magnitude * 0.05f,float.MinValue));
                     its++;
                 }
             }
-            Debug.DrawLine(transform.position, go.transform.position, Color.magenta);
+            //Debug.DrawLine(transform.position, go.transform.position, Color.magenta);
         }
         
         //NEIGHBOR PERCEPTION
         if (movementType == MovementType.Flock) {
             movement.ApplyForce(Cohesion(perception.GetNeighbors().ToArray()));
+            movement.ApplyForce(Separation(perception.GetNeighbors().ToArray(),movement.movementData.maxSpeed * 0.5f));
+            movement.ApplyForce(Alignment(perception.GetNeighbors().ToArray()));
         }
         
         its = (its == 0) ? 1 : its;
         moveVector /= its;
 
-        movement.ApplyForce(moveVector.normalized * movement.movementData.minSpeed);
-        transform.position = Utilities.Wrap(transform.position, new Vector3(-10, -10, -10), new Vector3(10, 10, 10));
+        //Debug.DrawLine(transform.position, transform.position + moveVector, Color.magenta);
+        movement.ApplyForce(moveVector * movement.movementData.maxSpeed);
+        transform.position = Utilities.Wrap(transform.position, new Vector3(-30, -30, -30), new Vector3(30, 30, 30));
     }
 
     private Vector3 Cohesion(GameObject[] neighbors) {
@@ -66,11 +73,44 @@ public class AutonomousAgent : AIAgent {
         return force;
     }
     
-    private Vector3 Separation(GameObject[] neighbors) {
-        return Vector3.zero;
+    private Vector3 Separation(GameObject[] neighbors, float radius) {
+        Vector3 separation = Vector3.zero;
+        float strength = 10;
+        foreach (var neighbor in neighbors)
+        {
+            Vector3 direction = transform.position - neighbor.transform.position;
+            float distance = direction.magnitude;
+            if (distance < radius)
+            {
+                separation += direction;
+                strength = (strength > distance && distance > 0) ? distance : strength;
+            }
+        }
+
+        Vector3 force = (separation.normalized * (movement.movementData.maxSpeed * 5f)) / strength;
+        //Debug.DrawLine(transform.position, transform.position + force, Color.magenta);
+
+        return force;
     }
     
     private Vector3 Alignment(GameObject[] neighbors) {
-        return Vector3.zero;
+        Vector3 velocities = Vector3.zero;
+        foreach (var neighbor in neighbors)
+        {
+            Vector3 velocity = neighbor.GetComponent<AutonomousAgent>().GetVelocity();
+            velocities += velocity.normalized;
+        }
+        velocities += GetVelocity();
+        
+        Vector3 force = (velocities / (neighbors.Length+1)) * (movement.movementData.maxSpeed * 1f);
+        force.y = 0;
+        Debug.DrawLine(transform.position, transform.position + force, Color.magenta);
+
+        return force;
+    }
+
+    private Vector3 GetVelocity()
+    {
+        return recordedPos - transform.position;
     }
 }
