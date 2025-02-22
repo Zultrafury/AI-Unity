@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class AutonomousAgent : AIAgent {
     public Perception perception;
+    public ObstaclePerception obstaclePerception;
     public enum MovementType {
         Chase,
         Flee,
@@ -55,8 +56,23 @@ public class AutonomousAgent : AIAgent {
         its = (its == 0) ? 1 : its;
         moveVector /= its;
 
+        //OBSTACLE PERCEPTION
+        //Debug.DrawLine(transform.position, transform.position - transform.forward, Color.magenta);
+        if (obstaclePerception != null && obstaclePerception.CheckDirection(-Vector3.forward))
+        {
+            Vector3 direction = Vector3.zero;
+            if (obstaclePerception.GetOpenDirection(ref direction))
+            {
+                Debug.DrawRay(transform.position, direction, Color.white);
+                movement.ApplyForce(direction * movement.movementData.maxSpeed);
+            }
+        }
+        else
+        {
+            movement.ApplyForce(moveVector * movement.movementData.maxSpeed);
+        }
+        
         //Debug.DrawLine(transform.position, transform.position + moveVector, Color.magenta);
-        movement.ApplyForce(moveVector * movement.movementData.maxSpeed);
         transform.position = Utilities.Wrap(transform.position, new Vector3(-30, -30, -30), new Vector3(30, 30, 30));
     }
 
@@ -104,7 +120,7 @@ public class AutonomousAgent : AIAgent {
         
         Vector3 force = (velocities / (neighbors.Length+1)) * (movement.movementData.maxSpeed * 1f);
         force.y = 0;
-        Debug.DrawLine(transform.position, transform.position + force, Color.magenta);
+        //Debug.DrawLine(transform.position, transform.position + force, Color.magenta);
 
         return force;
     }

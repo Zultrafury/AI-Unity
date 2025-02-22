@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3428267478332778622}
   - component: {fileID: 4679468517691531872}
   - component: {fileID: -4609219025890193847}
+  - component: {fileID: 5224376928573965450}
   - component: {fileID: 4325769816700399099}
   m_Layer: 0
   m_Name: Agent01
@@ -69,7 +70,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bffaf334d1888df448c1b711e7702807, type: 2}
+  - {fileID: 2100000, guid: 6bf11ca06dc8d884196f71640d7f8699, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -150,6 +151,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementData: {fileID: 11400000, guid: 207d33fb54d88a545895d1af4206c159, type: 2}
+--- !u!114 &5224376928573965450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8653114136721976728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1490a7f77b4607a4599f8ff858ec8643, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  obstacleWeight: 30
+  maxDistance: 5
+  numRaycast: 5
+  maxAngle: 90
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  tagName: Obstacle
 --- !u!114 &4325769816700399099
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164,4 +185,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movement: {fileID: -4609219025890193847}
   perception: {fileID: 4679468517691531872}
+  obstaclePerception: {fileID: 5224376928573965450}
   movementType: 2

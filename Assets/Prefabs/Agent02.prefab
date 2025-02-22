@@ -69,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3700a5535d5911546be7a92d6d154964, type: 2}
+  - {fileID: 2100000, guid: 0475245534851f0498051c546b5da6cf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -164,4 +164,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movement: {fileID: 1646107584818717260}
   perception: {fileID: 3902693933617626038}
+  obstaclePerception: {fileID: 0}
   movementType: 0
